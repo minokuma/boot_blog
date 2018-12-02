@@ -1,29 +1,37 @@
 package com.blog.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.blog.domain.User;
+import com.blog.domain.UserRepository;
 
 @Controller
+@RequestMapping("/users")
 public class UserController {
-	private List<User> users = new ArrayList<User>();
 	
-/*	@GetMapping("/list")
-	public String list(Model model) {
-		model.addAttribute(attributeName, attributeValue);
-		return "list";
-	}*/
+	@Autowired
+	private UserRepository userRepository;
 	
-	@GetMapping("/create")
+	@GetMapping("/form")
+	public String form() {
+		return "/user/form";
+	}
+	
+	@PostMapping("/create")
 	public String create(User user) {
-		System.out.println("user : " + user.toString());
-		users.add(user);
-		System.out.println("create!");
-		return "form";
+		userRepository.save(user);
+		return "redirect:/users/list";
+	}
+	
+	@GetMapping("/list")
+	public String list(Model model) {
+		model.addAttribute("users", userRepository.findAll());
+		return "/user/list";
 	}
 	
 }
