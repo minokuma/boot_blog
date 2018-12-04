@@ -1,5 +1,6 @@
 spring:
   mustache:
+    expose-session-attributes: true
     suffix: .html
   datasource: 
     url: jdbc:h2:~/boot_blog
