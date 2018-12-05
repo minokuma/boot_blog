@@ -41,7 +41,7 @@ public class UserController {
 		}
 		
 		System.out.println("Login Success!");
-		session.setAttribute("user", user);
+		session.setAttribute("username", user);
 		
 		
 		return "redirect:/";
@@ -49,7 +49,7 @@ public class UserController {
 	
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
-		session.removeAttribute("user");
+		session.removeAttribute("username");
 		return "redirect:/";
 	}
 	
@@ -71,16 +71,36 @@ public class UserController {
 	}
 	
 	@GetMapping("/{id}/form")
-	public String updateForm(@PathVariable Long id, Model model) {
+	public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+		
+		Object user_ = session.getAttribute("username");
+		if(user_ == null) {
+			return "redirect:/users/loginForm";
+		}
+		
+		User sessionedUser = (User) user_;
+		if(!id.equals(sessionedUser.getId())) {
+			throw new IllegalStateException("you can only edit your own information.");
+		}
+		
 		User user = userRepository.findById(id).get();
 		model.addAttribute("user", user);
 		return "/user/update_form";
 	}
 	
 	@PutMapping("/{id}")
-	public String update(@PathVariable Long id, User newUser) {
-		//User user = userRepository.findById(id).get();
-		//user = User.builder().userId(newUser.getUserId()).password(newUser.getPassword()).name(newUser.getName()).email(newUser.getEmail()).build();
+	public String update(@PathVariable Long id, User newUser, HttpSession session) {
+
+		Object user_ = session.getAttribute("username");
+		if(user_ == null) {
+			return "redirect:/users/loginForm";
+		}
+		
+		User sessionedUser = (User) user_;
+		if(!id.equals(sessionedUser.getId())) {
+			throw new IllegalStateException("you can only edit your own information.");
+		}
+		
 		userRepository.save(newUser);
 		return "redirect:/users/list";
 	}
